@@ -123,40 +123,37 @@ brfss_2010=
   filter(number_of_location > 7)
 brfss_2010
 ```
+```{r}
+brfss_datavalue = 
+brfss %>% 
+  filter(response == "Excellent") %>% 
+  group_by(locationabbr, year) %>% 
+  summarize(
+    mean_data_value = mean(data_value),
+    ) %>% 
+  drop_na()
+brfss_datavalue
+```
 
+A "spaghetti" plot:
+```{r}
+ggplot(brfss_datavalue, aes(x = year, y = mean_data_value, color = locationabbr)) + 
+  geom_line()
+```
 A two panel plot for 2006 and 2010:
 ```{r}
 library(patchwork)
-Two_2006 =
+Two = 
 brfss %>% 
-  filter(year == "2006") %>% 
-  select(year,locationabbr,response, data_value) %>% 
+  filter(year %in%  c("2006","2010")) %>% 
+  select(year,locationabbr,response, data_value,locationdesc) %>% 
   drop_na() %>% 
   filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>% 
   filter(locationabbr == "NY")
-Two_2006
 
-Two_2006 %>% 
-  ggplot(aes(x = data_value)) + 
-  geom_histogram(alpha = .5) +
-  theme(legend.position = "none")
-  
-
-
-```
-
-
-```{r}
-Two_2010 =
-brfss %>% 
-  filter(year == "2010") %>% 
-  select(year,locationabbr,response, data_value) %>% 
-  drop_na() %>% 
-  filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>% 
-  filter(locationabbr == "NY") %>% 
-  ggplot(aes(x = year, y = data_value)) + 
-  geom_histogram(alpha = .5) +
-  theme(legend.position = "none")
-
-  
+Two %>% 
+  group_by(year,locationdesc,locationabbr) %>% 
+  ggplot(aes(x = response, y = data_value, fill = locationdesc)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_grid(year ~ .)
 ```
