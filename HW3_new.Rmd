@@ -157,3 +157,4 @@ Two %>%
   geom_bar(stat = "identity", position = "dodge") +
   facet_grid(year ~ .)
 ```
+My graph
