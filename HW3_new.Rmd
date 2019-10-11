@@ -9,22 +9,154 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(ggplot2)
+library(ggridges)
+library(tidyverse)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+###Problem 1
+Basic setup:
+```{r}
+library(p8105.datasets)
+data("instacart")
+str(instacart)
+view(instacart)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+How many aisles are there, and which aisles are the most items ordered from?
+```{r}
+ins_aisles = 
+instacart %>%
+  count(aisle, name ="number_aisles") %>%
+  arrange(desc(number_aisles)) 
+```
+
+By using the count command, we can see that fresh vegetables is the most item ordered from. There are 134 aisles(also use length function to check) and the number of fresh vegetables is 150609. 
+
+Scatterplot:
+```{r}
+ins_aisles%>%
+  filter(number_aisles > 10000) %>%
+  ggplot(aes(y = aisle, x = number_aisles)) + 
+  geom_point(alpha = .5)
+```
+
+```{r}
+library(tibble)
+instacart_pop =
+instacart %>%
+  group_by(aisle) %>%
+  count(product_name, name ="number_product_name") %>%
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) 
+instacart_pop %>% 
+  group_by(aisle) %>% 
+  arrange(desc(number_product_name)) %>% 
+  top_n(3) %>% 
+  knitr :: kable()
+  
+```
+
+A table shows the mean of hour:
+```{r}
+instacart_mean =
+  instacart %>% 
+  drop_na() %>% 
+  select(product_name,order_dow,order_hour_of_day) %>% 
+  filter(product_name %in% c("Pink Lady Apples","Coffee Ice Cream")) 
+instacart_mean =
+  instacart_mean %>% 
+  group_by(order_dow) %>% 
+  summarize(
+    mean_order_hour_of_day = mean(order_hour_of_day)) %>% 
+  mutate(
+    order_dow = recode(order_dow, '0' = "Sunday",'1' = "Monday",'2' = "Tuesday",'3' = "Wednesday", '4' = "Thursday", '5' = "Friday", '6' = "Saturday")
+  )
+  
+view(instacart_mean)
+  
+  
+```
+
+
+### Problem 2
+Basic data cleaning:
+```{r}
+library(p8105.datasets)
+data("brfss_smart2010") 
+brfss = 
+  brfss_smart2010 %>% 
+  janitor::clean_names() %>%  #format the data use appropriate variable names
+  filter(topic == "Overall Health") %>% #focus on topic
+  filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>%  # responses from "Excellent" to "Poor", used unique command to check what are categories in response
+  mutate(
+     response = as.factor(response),
+     response = forcats::fct_relevel(response, c("Poor","Fair","Good","Very good","Excellent"))) #responses as a factor taking levels orders
+
+```
+For 2002, there are three states were observed at 7 or more locations. They were MA,NJ, and PA.
+```{r}
+brfss_2002= 
+  brfss %>%
+  select(year,locationabbr,locationdesc) %>% 
+  filter(year == "2002") %>% 
+  group_by(locationabbr) %>% 
+  count(locationabbr, name = "number_of_location") %>% 
+  mutate(
+    number_of_location = number_of_location/5
+  ) %>% 
+  filter(number_of_location > 7)
+brfss_2002
+
+```
+For 2010, there is a significant increase in the number of locations that satisfy our requirements. Specifically, 11 states are obseved at 7 or more locations.
+```{r}
+brfss_2010= 
+  brfss %>%
+  select(year,locationabbr,locationdesc) %>% 
+  filter(year == "2010") %>% 
+  group_by(locationabbr) %>% 
+  count(locationabbr, name = "number_of_location") %>% 
+  mutate(
+    number_of_location = number_of_location/5
+  ) %>% 
+  filter(number_of_location > 7)
+brfss_2010
+```
+
+A two panel plot for 2006 and 2010:
+```{r}
+library(patchwork)
+Two_2006 =
+brfss %>% 
+  filter(year == "2006") %>% 
+  select(year,locationabbr,response, data_value) %>% 
+  drop_na() %>% 
+  filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>% 
+  filter(locationabbr == "NY")
+Two_2006
+
+Two_2006 %>% 
+  ggplot(aes(x = data_value)) + 
+  geom_histogram(alpha = .5) +
+  theme(legend.position = "none")
+  
+
+
+```
+
+
+```{r}
+Two_2010 =
+brfss %>% 
+  filter(year == "2010") %>% 
+  select(year,locationabbr,response, data_value) %>% 
+  drop_na() %>% 
+  filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>% 
+  filter(locationabbr == "NY") %>% 
+  ggplot(aes(x = year, y = data_value)) + 
+  geom_histogram(alpha = .5) +
+  theme(legend.position = "none")
+
+  
+```
