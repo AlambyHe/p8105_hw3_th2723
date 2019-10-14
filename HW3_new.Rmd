@@ -23,16 +23,14 @@ data("instacart")
 str(instacart)
 view(instacart)
 ```
-
-How many aisles are there, and which aisles are the most items ordered from?
+The dataset instacart has dimention of 1384617 X 15. Variables include order_id, product_id, add_to_cart_order, reordered, user_id, eval_set, order_number, order_dow, order_hour_of_day, days_since_prior_order, product_name, aisle_id, department_id, aisle, department. Important characters include product_name and aisle while some viatal numeric variables are product_id and order_hour_of_day. Important varibles used to solve this question include product_name since this is a unique identifier of products, and manipulation involve products is based on this important variable.
 ```{r}
 ins_aisles = 
 instacart %>%
   count(aisle, name ="number_aisles") %>%
   arrange(desc(number_aisles)) 
 ```
-
-By using the count command, we can see that fresh vegetables is the most item ordered from. There are 134 aisles(also use length function to check) and the number of fresh vegetables is 150609. 
+By using the count command, we can see that fresh vegetables is the most item ordered from. There are 134 aisles(also use length function to check) and the number of fresh vegetables is 150609.
 
 Scatterplot:
 ```{r}
@@ -41,7 +39,7 @@ ins_aisles%>%
   ggplot(aes(y = aisle, x = number_aisles)) + 
   geom_point(alpha = .5)
 ```
-
+Here, I use a scatterplot rather a histogram,because it shows a more clear graph of relative position among the count of each kind of aisle.
 ```{r}
 library(tibble)
 instacart_pop =
@@ -77,8 +75,6 @@ instacart_mean =
               values_from = mean_order_hour_of_day) %>% 
   select(product_name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday)
 knitr :: kable(instacart_mean)
-  
-  
 ```
 
 
@@ -94,8 +90,8 @@ brfss =
   filter(response %in% c("Excellent","Very good","Good","Fair","Poor")) %>%  # responses from "Excellent" to "Poor", used unique command to check what are categories in response
   mutate(
      response = as.factor(response),
-     response = forcats::fct_relevel(response, c("Poor","Fair","Good","Very good","Excellent"))) #responses as a factor taking levels orders
-
+     response = fct_relevel(response, c("Poor","Fair","Good","Very good","Excellent"))) %>%   
+     arrange(response,desc(response))#responses as a factor taking levels orders
 ```
 For 2002, there are six states were observed at 7 or more locations. They were CT, FL, MA, NC, NJ,and PA.
 ```{r}
@@ -180,7 +176,48 @@ Two %>%
   )
 ```
 ### Problem 3
+Because the original data frame is not shown in a data frame that is easy to manipulate. So I use pivot longer to change the data format. Initually, it has 1443 columns and now I transpose variable activity numbers into observation numbers. The new table contains 6 variables and 50400 observations.The new variable "WeekDay" I creat is to point out whether that day is a weekday. Important vairables include week(int), day_id(int), activity_number(char), day(char) and activity_counts(dbl) and WeekDay(char). Since the table is already tailored into a more concise one, I think each variable is as important as each other :)
 ```{r}
+accel= read_csv("accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "activity_number",
+    values_to = "activity_counts"
+  ) %>% 
+mutate(
+  WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
+) #new variable indicate weekday or weekend day
+# did not change any data type, since my way of manipulation does not involve changing data typeen
+  knitr::kable(head(accel,30)) # this is such a long table, so showing just the first 30 rows
 
 ```
 
+My table for this question has 35 observation, containning 7 observations for each day. There's an increasing trend in the number of activity from Monday to Friday, except for weeks 3 and 4. In general, sunday has a low number of activities compared across other weekdays within the same week.
+```{r}
+accel_day = 
+accel %>% 
+  group_by(week,day) %>%
+  mutate(
+    sum_activity_day = sum(activity_counts)
+    ) %>% 
+  select(week, day_id, day, sum_activity_day) %>% 
+  distinct()
+  knitr::kable(accel_day)
+```
+A plot:
+```{r}
+accel %>% mutate(
+  activity_number = factor(substr(activity_number,10,13), ordered = TRUE, levels = c(1:1440))
+  ) %>% 
+  ggplot(aes(x = factor(activity_number), y = activity_counts, fill = day)) +
+  scale_x_discrete(breaks = seq(60, 1440, by=60),labels = as.character(c(1:24))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Inspection Activity over Day",
+    x = "Week",
+    y = "Count of Activity per Day"
+  )
+```
+
+In this plot, I use hour as the plotting unit. So we can see a activity distribution across hours in everyday. In general, we can see that the patient's activity peak is between 18:00 to 21:00, and there is one extremely high peak happened during this time period which is over 10,000. On the other hand, we can see that the patient has fewer activity during 0 to 5. By rationality, this indicates that this patient is sleeping and that's why he conducts much fewer activities. 
