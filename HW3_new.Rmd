@@ -219,4 +219,4 @@ accel %>% mutate(
   )
 ```
 
-In this plot, I use hour as the plotting unit. So we can see a activity distribution across hours in everyday. In general, we can see that the patient's activity peak is between 18:00 to 21:00, and there is one extremely high peak happened during this time period which is over 10,000. On the other hand, we can see that the patient has fewer activity during 0 to 5. By rationality, this indicates that this patient is sleeping and that's why he conducts much fewer activities.   
+In this plot, I use hour as the plotting unit. So we can see a activity distribution across hours in everyday. In general, we can see that the patient's activity peak is between 18:00 to 21:00, and there is one extremely high peak happened during this time period which is over 10,000. On the other hand, we can see that the patient has fewer activity during 0 to 5. By rationality, this indicates that this patient is sleeping and that's why he conducts much fewer activities.    
