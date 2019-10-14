@@ -19,14 +19,14 @@ library(ggridges)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ tibble  2.1.3     ✔ purrr   0.3.2
     ## ✔ tidyr   1.0.0     ✔ dplyr   0.8.3
     ## ✔ readr   1.1.1     ✔ stringr 1.3.1
     ## ✔ tibble  2.1.3     ✔ forcats 0.4.0
 
-    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter()                   masks stats::filter()
     ## ✖ dplyr::lag()                      masks stats::lag()
     ## ✖ ggridges::scale_discrete_manual() masks ggplot2::scale_discrete_manual()
@@ -283,7 +283,9 @@ accel= read_csv("accel_data.csv") %>%
   ) %>% 
 mutate(
   WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
-) #new variable indicate weekday or weekend day
+) %>% #new variable indicate weekday or weekend day
+  mutate(
+  activity_number = factor(activity_number)) # change activity number as a factor
 ```
 
     ## Parsed with column specification:
@@ -297,7 +299,6 @@ mutate(
     ## See spec(...) for full column specifications.
 
 ``` r
-# did not change any data type, since my way of manipulation does not involve changing data typeen
   knitr::kable(head(accel,30)) # this is such a long table, so showing just the first 30 rows
 ```
 

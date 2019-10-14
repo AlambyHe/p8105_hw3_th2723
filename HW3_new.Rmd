@@ -184,8 +184,10 @@ accel= read_csv("accel_data.csv") %>%
   ) %>% 
 mutate(
   WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
-) #new variable indicate weekday or weekend day
-# did not change any data type, since my way of manipulation does not involve changing data typeen
+) %>% #new variable indicate weekday or weekend day
+  mutate(
+  activity_number = factor(activity_number)) # change activity number as a factor
+
   knitr::kable(head(accel,30)) # this is such a long table, so showing just the first 30 rows
 
 ```
