@@ -399,7 +399,7 @@ accel %>% mutate(
     title = "Inspection Activity over Day",
     x = "Week",
     y = "Count of Activity per Day"
-  )
+  ) 
 ```
 
 ![](HW3_new_files/figure-markdown_github/unnamed-chunk-16-1.png)
