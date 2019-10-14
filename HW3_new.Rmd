@@ -1,8 +1,8 @@
 ---
-title: "Untitled"
+title: "HW3"
 author: "Tianhui He"
 date: "2019/10/11"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -20,8 +20,6 @@ Basic setup:
 ```{r}
 library(p8105.datasets)
 data("instacart")
-str(instacart)
-view(instacart)
 ```
 The dataset instacart has dimention of 1384617 X 15. Variables include order_id, product_id, add_to_cart_order, reordered, user_id, eval_set, order_number, order_dow, order_hour_of_day, days_since_prior_order, product_name, aisle_id, department_id, aisle, department. Important characters include product_name and aisle while some viatal numeric variables are product_id and order_hour_of_day. Important varibles used to solve this question include product_name since this is a unique identifier of products, and manipulation involve products is based on this important variable.
 ```{r}
@@ -41,7 +39,6 @@ ins_aisles%>%
 ```
 Here, I use a scatterplot rather a histogram,because it shows a more clear graph of relative position among the count of each kind of aisle.
 ```{r}
-library(tibble)
 instacart_pop =
 instacart %>%
   group_by(aisle) %>%
